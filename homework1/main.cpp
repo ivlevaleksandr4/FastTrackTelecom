@@ -2,6 +2,7 @@
 #include <thread>
 #include <bitset>
 #include <random>
+#include <vector>
 
 void Generate(char* data, size_t length) {
     std::mt19937 generator(11);
@@ -12,22 +13,18 @@ void Generate(char* data, size_t length) {
 }
 
 void InvertOddBits(char* data, size_t length) {
-    auto mask = [](char& byte) {
-        byte ^= 0b01010101;
-    };
-
-    auto InvertOddBitsThread = [&mask](char* start, size_t length) {
+    auto InvertOddBitsThread = [](char* begin, size_t length){
         for (size_t i = 0; i < length; ++i) {
-            mask(start[i]);
+            begin[i] ^= 0b01010101;
         }
     };
 
-    std::thread threads[length];
+    std::vector <std::thread> threads;
     for (size_t i = 0; i < length; ++i) {
-        threads[i] = std::thread(InvertOddBitsThread, data + i, 1);
+        threads.emplace_back(InvertOddBitsThread, data + i, 1);
     }
-    for (size_t i = 0; i < length; ++i) {
-        threads[i].join();
+    for (auto& t: threads){
+        t.join();
     }
 }
 
