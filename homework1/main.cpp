@@ -5,6 +5,9 @@
 #include <vector>
 
 void Generate(char* data, size_t length) {
+    if (data == nullptr || length < 1){
+        throw std::invalid_argument("invalid input");
+    }
     std::mt19937 generator(11);
     std::uniform_int_distribution <int> distr(0, 255);
     for (size_t i = 0; i < length; ++i) {
@@ -18,7 +21,7 @@ void InvertOddBits(char* data, size_t length) {
             begin[i] ^= 0b01010101;
         }
     };
-
+    
     std::vector <std::thread> threads;
     for (size_t i = 0; i < length; ++i) {
         threads.emplace_back(InvertOddBitsThread, data + i, 1);
