@@ -15,6 +15,15 @@ void Generate(char* data, size_t length) {
     }
 }
 
+void PrintData(char* data, size_t length) {
+    for (size_t i = 0; i < length; ++i) {
+        std::cout << std::bitset <8> (data[i]);
+        if (i < length - 1){
+            std::cout << ", ";
+        }
+    }
+}
+
 void InvertOddBits(char* data, size_t length) {
     auto InvertOddBitsThread = [](char* begin, size_t length){
         for (size_t i = 0; i < length; ++i) {
@@ -39,23 +48,13 @@ int main() {
     Generate(data, length);
 
     std::cout << "\n                Original data = {";
-    for (size_t i = 0; i < length; ++i) {
-        std::cout << std::bitset <8> (data[i]);
-        if (i < length - 1){
-            std::cout << ", ";
-        }
-    }
+    PrintData(data, length);
     std::cout << "}\n";
 
     InvertOddBits(data, length);
 
     std::cout << "\nData after inverting odd bits = {";
-    for (size_t i = 0; i < length; ++i) {
-        std::cout << std::bitset <8> (data[i]);
-        if (i < length - 1){
-            std::cout << ", ";
-        }
-    }
+    PrintData(data, length);
     std::cout << "}\n";
 
     return 0;
