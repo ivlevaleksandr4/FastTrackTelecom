@@ -91,9 +91,7 @@ public:
         }
 
         if (head->data == data) {
-            Node <T>* temp = head;
-            head = head->next;
-            delete temp;
+            pop_front();
             return;
         }
 
