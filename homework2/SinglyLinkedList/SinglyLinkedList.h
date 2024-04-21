@@ -1,11 +1,16 @@
-//Template class for SinglyLinkedList
+#pragma once
+#include <initializer_list>
+#include <ostream>
+
 template <class T>
 class Node {
 public:
     T data;
     Node* next;
 
-    Node(T data) : data(data), next(nullptr) {}
+    explicit Node(T data) : data(data), next(nullptr) {}
+
+    ~Node() = default;
 };
 
 template <class T>
@@ -14,8 +19,17 @@ private:
     Node <T>* head;
 public:
     SinglyLinkedList() : head(nullptr) {}
+    SinglyLinkedList(std::initializer_list <T> initList) : head(nullptr) {
+        for (const auto& element : initList) {
+            push_back(element);
+        }
+    }
 
-    void push_back(T data) {
+    ~SinglyLinkedList() { delete head; }
+
+    template <class U>
+    void push_back(U data) {
+        static_assert(std::is_same <T, U>::value, "Invalid data type");
         Node <T>* newNode = new Node <T>(data);
         if (head == nullptr) {
             head = newNode;
@@ -49,7 +63,9 @@ public:
         current->next = nullptr;
     }
 
-    void push_front(T data) {
+    template <class U>
+    void push_front(U data) {
+        static_assert(std::is_same <T, U>::value, "Invalid data type");
         Node <T>* newNode = new Node <T>(data);
         newNode->next = head;
         head = newNode;
@@ -65,7 +81,9 @@ public:
         delete temp;
     }
 
-    void erase(T data) {
+    template <class U>
+    void erase(U data) {
+        static_assert(std::is_same <T, U>::value, "Invalid data type");
         if (head == nullptr) {
             return;
         }
@@ -90,13 +108,30 @@ public:
         current->next = current->next->next;
         delete temp;
     }
+
     void clear() {
         while (head != nullptr) {
             pop_front();
         }
     }
 
-    bool find(T data) {
+    bool empty() {
+        return head == nullptr;
+    }
+
+    int size() {
+        int count = 0;
+        Node <T>* current = head;
+        while (current != nullptr) {
+            count++;
+            current = current->next;
+        }
+        return count;
+    }
+
+    template <class U>
+    bool find(U data) {
+        static_assert(std::is_same <T, U>::value, "Invalid data type");
         Node <T>* current = head;
         while (current != nullptr) {
             if (current->data == data) {
@@ -110,7 +145,7 @@ public:
     friend std::ostream& operator << (std::ostream& os, const SinglyLinkedList <T>& list) {
         Node <T>* current = list.head;
         while (current != nullptr) {
-            os << current->data << " ";
+            os << current->data << ' ';
             current = current->next;
         }
         return os;
