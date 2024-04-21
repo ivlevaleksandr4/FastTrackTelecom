@@ -25,7 +25,10 @@ public:
         }
     }
 
-    ~SinglyLinkedList() { delete head; }
+    ~SinglyLinkedList() {
+        clear();
+        delete head;
+    }
 
     template <class U>
     void push_back(U data) {
