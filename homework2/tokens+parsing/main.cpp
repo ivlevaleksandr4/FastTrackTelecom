@@ -8,57 +8,57 @@
 //1)токенизация
 //2)парсер(построение дерева поиска)
 
-struct OpeningBracket {
-  friend std::ostream& operator << (std::ostream& os, const OpeningBracket&) {
+struct OpeningBracketToken {
+  friend std::ostream& operator << (std::ostream& os, const OpeningBracketToken&) {
     return os << "(";
   }
 };
 
-struct ClosingBracket {
-  friend std::ostream& operator << (std::ostream& os, const ClosingBracket&) {
+struct ClosingBracketToken {
+  friend std::ostream& operator << (std::ostream& os, const ClosingBracketToken&) {
     return os << ")";
   }
 };
 
-struct Number {
-  int vaue;
-  friend std::ostream& operator << (std::ostream& os, const Number&) {
+struct NumberToken {
+  int value;
+  friend std::ostream& operator << (std::ostream& os, const NumberToken&) {
     return os << "Number";
   }
 };
 
-struct Plus {
-  friend std::ostream& operator << (std::ostream& os, const Plus&) {
+struct PlusToken {
+  friend std::ostream& operator << (std::ostream& os, const PlusToken&) {
     return os << "+";
   }
 };
 
-struct Minus {
-  friend std::ostream& operator << (std::ostream& os, const Minus&) {
+struct MinusToken {
+  friend std::ostream& operator << (std::ostream& os, const MinusToken&) {
     return os << "-";
   }
 };
 
-struct Multiply {
-  friend std::ostream& operator << (std::ostream& os, const Multiply&) {
+struct MultiplyToken {
+  friend std::ostream& operator << (std::ostream& os, const MultiplyToken&) {
     return os << "*";
   }
 };
 
-struct Modulo {
-  friend std::ostream& operator << (std::ostream& os, const Modulo&) {
+struct ModuloToken {
+  friend std::ostream& operator << (std::ostream& os, const ModuloToken&) {
     return os << "%";
   }
 };
 
-struct Divide {
-  friend std::ostream& operator << (std::ostream& os, const Divide&) {
+struct DivideToken {
+  friend std::ostream& operator << (std::ostream& os, const DivideToken&) {
     return os << "/";
   }
 };
 
-struct Comma {
-  friend std::ostream& operator << (std::ostream& os, const Comma&) {
+struct CommaToken {
+  friend std::ostream& operator << (std::ostream& os, const CommaToken&) {
     return os << ",";
   }
 };
@@ -82,6 +82,24 @@ struct MaxToken {
   }
 };
 
+struct SinToken {
+  friend std::ostream& operator << (std::ostream& os, const SinToken&) {
+    return os << "sin";
+  }
+};
+
+struct CosToken {
+  friend std::ostream& operator << (std::ostream& os, const CosToken&) {
+    return os << "cos";
+  }
+};
+
+struct TanToken {
+  friend std::ostream& operator << (std::ostream& os, const TanToken&) {
+    return os << "tan";
+  }
+};
+
 struct AbsToken {
   friend std::ostream& operator << (std::ostream& os, const AbsToken&) {
     return os << "abs";
@@ -100,8 +118,14 @@ struct SqrtToken {
   }
 };
 
-using Token = std::variant <OpeningBracket, ClosingBracket, Number, Plus, Minus, Multiply, Modulo, Divide, Comma,
-  UnknownToken, MinToken, MaxToken, AbsToken, SqrToken, SqrtToken>;
+struct PowToken {
+  friend std::ostream& operator << (std::ostream& os, const PowToken&) {
+    return os << "pow";
+  }
+};
+
+using Token = std::variant <OpeningBracketToken, ClosingBracketToken, NumberToken, PlusToken, MinusToken, MultiplyToken, ModuloToken, DivideToken, CommaToken,
+  UnknownToken, MinToken, MaxToken, AbsToken, SqrToken, SqrtToken, SinToken, CosToken, TanToken, PowToken>;
 
 std::ostream& operator << (std::ostream& os, const Token& token) {
   std::visit([&os](const auto& t) { os << t; }, token);
@@ -109,14 +133,14 @@ std::ostream& operator << (std::ostream& os, const Token& token) {
 }
 
 const std::unordered_map <char, Token> kSymbolToToken{
-  {'+', Plus{}},
-  {'-', Minus{}},
-  {'*', Multiply{}},
-  {'/', Divide{}},
-  {'%', Modulo{}},
-  {'(', OpeningBracket{}},
-  {')', ClosingBracket{}},
-  {',', Comma{}}
+  {'+', PlusToken{}},
+  {'-', MinusToken{}},
+  {'*', MultiplyToken{}},
+  {'/', DivideToken{}},
+  {'%', ModuloToken{}},
+  {'(', OpeningBracketToken{}},
+  {')', ClosingBracketToken{}},
+  {',', CommaToken{}}
 };
 
 using Name = std::string;
@@ -125,14 +149,20 @@ const std::unordered_map <Name, Token> kFunctionToToken{
   {"min", MinToken{}},
   {"abs", AbsToken{}},
   {"sqr", SqrToken{}},
-  {"sqrt", SqrtToken{}}
+  {"sqrt", SqrtToken{}},
+  {"sin", SinToken{}},
+  {"cos", CosToken{}},
+  {"tan", TanToken{}},
+  {"pi", NumberToken{}},
+  {"e", NumberToken{}},
+  {"pow", PowToken{}}
 };
 
 int ToDigit(unsigned char symbol) {
   return symbol - '0';
 }
 
-Number ParseNumber(const std::string& input, size_t& pos) {
+NumberToken ParseNumber(const std::string& input, size_t& pos) {
   int value = 0;
   auto symbol = static_cast <unsigned char> (input[pos]);
 
@@ -146,7 +176,7 @@ Number ParseNumber(const std::string& input, size_t& pos) {
     symbol = static_cast <unsigned char> (input[++pos]);
   }
 
-  return Number{ value };
+  return NumberToken{ value };
 }
 
 Token ParseFunctionName(const std::string& input, size_t& pos) {
@@ -204,8 +234,8 @@ std::vector <Token> Tokenize(const std::string& input) {
 }
 
 int main() {
-  std::vector <std::string> requests = { "14 - 1", "(1 + 2) * 3 / 4 + 5 * (6 - 7)", "abs(-100) + 4343 - (2) * (33 - 444)", "6 / 33 +sqrt(49) - abs(99)", "1 - sqr(2 * 3) + 4 / (abs(-5))",
-  "min(sqr(33 * 333)", "max(22, abs(-9)))))", "sqrt(5 * 6)", "5 + 77", "max(1, 2, 3, 4, 5, 6) ." };
+  std::vector <std::string> requests = { "14 - 1", "(1 + 2) * 3 / 4 + 5 * (6 - 7)", "abs(-100) + 4343 - (2) * (33 - 444)", "6 / 33 + sqrt(49) - abs(99)", "1 - sqr(5 * 12) + 3434 / (abs(-500))",
+  "min(sqr(33 * 333)", "max(22, abs(-9)))))", "sqrt(5 * 6)", "5 + 77", "max(1, 2, 3, 4, 5, 6) .", "sin(100) + cos(200) + tan(300)", "e + pi - 16", "pow(15) rjrj" };
 
   std::vector <Token> tokens;
   int requestCounter = 0;
@@ -219,5 +249,6 @@ int main() {
     std::cout << "\n\n";
     tokens.clear();
   }
+
   return 0;
 }
