@@ -15,6 +15,7 @@ int main() {
     std::cout << "is 11 in list? " << list.find(11) << '\n';
     std::cout << "Size = " << list.size() << '\n';
     list.erase(5);
+    list.erase(11);
     std::cout << "list after erasing 5: " << list << '\n';
     std::cout << "is list empty? " << list.empty() << '\n';
     list.clear();
